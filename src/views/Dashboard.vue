@@ -47,7 +47,7 @@
     >
       <v-app-bar-nav-icon color="#C76262" @click.stop="drawer = !drawer" />
     
-   <v-toolbar-title >PEER COVER</v-toolbar-title>
+   <v-toolbar-title style="color:#0F9736" >PEER COVER</v-toolbar-title>
        
         
      
@@ -79,7 +79,7 @@ export default {
         {
           icon: 'mdi-apps',
           title: 'Dashboard',
-          to: '/dashboard'
+          to: '/dashboard/home'
         },
         
 

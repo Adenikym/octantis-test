@@ -37,7 +37,7 @@ const routes = [
         
       },
       {
-        path:'profile',
+        path:'profile/:id',
         component: () => import(/*webpackChunkName:"dashboardhome" */ '../dashboard/Profile.vue'),
         
         

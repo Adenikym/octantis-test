@@ -18,9 +18,11 @@
    
   <v-data-table
     :headers="headers"
-    :items="desserts"
+    :items="marketers"
     sort-by="calories"
     class="elevation-1 mt-4"
+   
+    :loading="loading"
   >
     <template v-slot:top>
       <v-toolbar
@@ -28,118 +30,25 @@
       >
      
         <v-spacer></v-spacer>
-        <v-dialog
-          v-model="dialog"
-          max-width="500px"
-        >
-          
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
-
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.name"
-                      label="Dessert name"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.calories"
-                      label="Calories"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.fat"
-                      label="Fat (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.carbs"
-                      label="Carbs (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.protein"
-                      label="Protein (g)"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="close"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="save"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+    
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
+     
       <v-icon
         small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-chevron-right
-      </v-icon>
-      <v-icon
-        small
-        @click="deleteItem(item)"
+        @click="deleteMarketer(item.username)"
+        color="red"
       >
         mdi-delete
+      </v-icon>
+       <v-icon
+        small
+        class="mr-2"
+        @click="showUser(item)"
+        color="red"
+      >
+        mdi-chevron-right
       </v-icon>
     </template>
    
@@ -152,10 +61,21 @@
 </template>
 
 <script>
+
+import userService from '../services/user.service'
+
 export default {
+
+async  mounted(){
+   if (!this.currentUser) {
+      this.$router.push('/login');
+    }
+await this.fetchMarketers()
+  },
 data: () => ({
       dialog: false,
       dialogDelete: false,
+      loading:false,
       headers: [
         {
           text: 'Name',
@@ -164,29 +84,53 @@ data: () => ({
           value: 'name',
         },
       
-        { text: 'Email', value: 'fat' },
-        { text: 'Phone No', value: 'carbs' },
-        { text: 'Username', value: 'protein' },
+        { text: 'Email', value: 'email' },
+        { text: 'Phone No', value: 'phonenumber' },
+        { text: 'Username', value: 'username' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      desserts: [],
-      editedIndex: -1,
-      editedItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
-      },
-      defaultItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
-      },
+      
+      marketers:[]
     }),
+      computed:{
+ currentUser() {
+      return this.$store.state.auth.user;
+    }
+  },
+
+    methods:{
+      fetchMarketers(){
+        this.loading=true
+userService.getConsultants().then(
+   response => {
+     this.loading=false
+        this.marketers = response.data.marketers;
+      },
+      error => {
+        this.content =
+          (error.response && error.response.data) ||
+          error.message ||
+          error.toString();
+      }
+)
+
+    },
+    showUser(value){
+console.log(value)
+this.$router.push({path:'/dashboard/profile/'+ value.marketing_consultant_id})
+    },
+    deleteMarketer(id){
+userService.deleteConsultant(id).then(response=>{
+ console.log(response)
+
+  const newArray= this.marketers.filter((marketer) =>{ return  marketer.marketing_consultant_id != id})
+console.log(newArray)
+this.marketers= newArray
+})
+    },
 }
+}
+
 </script>
 
 <style>

@@ -35,28 +35,26 @@
 
         <v-form ref="form" v-model="valid" lazy-validation class="mt-4 col-10">
           <v-text-field
-            v-model="user.username"
+      v-model="form.username"
             :rules="nameRules"
             label="Username"
             required
             outlined
           ></v-text-field>
           <v-text-field
-            v-model="user.password"
-            :value="myPass"
+         v-model="form.password"
+       
             :rules="passRules"
             label="Password"
             required
             outlined
-            :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append="() => (value = !value)"
-            :type="value ? 'password' : 'text'"
+            
           ></v-text-field>
 
           <div class="d-flex justify-end">
             <v-btn
               class="mt-2"
-              to="/auth/reset"
+          
               color="#00932B"
               text
               style="text-transform: none; font-weight: bold"
@@ -82,15 +80,14 @@
 </template>
 
 <script>
-import User from '../models/user'
 export default {
   data() {
     return {
 
-      user: new User('', ''),
+     
       form: {
         username: "",
-        password: "",
+        password:'',
       },
       loading:false,
       valid:true,
@@ -129,7 +126,7 @@ export default {
 this.loading=true
 
       //call login action
-      this.$store.dispatch('auth/login', this.user).then(
+      this.$store.dispatch('auth/login', this.form).then(
             () => {
               this.$router.push('/dashboard/home');
             },
